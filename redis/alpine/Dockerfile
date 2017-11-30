@@ -25,7 +25,7 @@ RUN rm -rf /var/cache/apk/*
 COPY redis-slave.conf /etc/redis/slave.conf
 COPY redis-sentinel.conf /etc/redis/sentinel.conf
 COPY promote.sh /var/redis/promote.sh
-COPY run.sh /usr/local/bin/redis.sh
+COPY redis.sh /usr/local/bin/redis.sh
 
 CMD [ "touch /var/log/redisrunner.txt; chmod +w /var/log/redisrunner.txt; chmod +x /usr/local/bin/redis.sh" ]
 CMD [ "/usr/local/bin/redis.sh > /var/log/redisrunner.txt" ]
