@@ -21,13 +21,13 @@ RUN chmod +x /usr/local/bin/kubectl
 RUN apk add --no-cache bash sed curl redis=4.0.2-r1 ca-certificates
 RUN rm -rf /var/cache/apk/*
 
-COPY redis-master.conf /etc/redis/master.conf
+#COPY redis-master.conf /etc/redis/master.conf
 COPY redis-slave.conf /etc/redis/slave.conf
 COPY redis-sentinel.conf /etc/redis/sentinel.conf
 COPY promote.sh /var/redis/promote.sh
 COPY run.sh /var/redis/run.sh
 
 CMD [ "touch /var/log/redisrunner.txt" ]
-CMD [ "/run.sh > /var/log/redisrunner.txt" ]
+CMD [ "/var/redis/run.sh > /var/log/redisrunner.txt" ]
 
 ENTRYPOINT [ "bash", "-c" ]
