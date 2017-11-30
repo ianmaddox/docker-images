@@ -85,7 +85,7 @@ function launchslave() {
 
 
 # Seed the cluster with a single master
-if [[ "${MASTER}" == *"-server-0" ]]; then
+if [[ "${HOSTNAME}" == *"-server-0" ]]; then
   export MASTER=true
   echo "Seeding Redis cluster with initial master"
   launchmaster
