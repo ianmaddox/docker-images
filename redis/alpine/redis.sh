@@ -84,6 +84,13 @@ function launchslave() {
 }
 
 
+# Seed the cluster with a single master
+if [[ "${MASTER}" == *"-server-0" ]]; then
+  echo "Seeding Redis cluster with initial master"
+  launchmaster
+  exit 0
+fi
+
 # Check if MASTER environment variable is set
 if [[ "${MASTER}" == "true" ]]; then
   echo "Launching Redis in Master mode"
