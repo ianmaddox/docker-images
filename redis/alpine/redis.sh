@@ -25,6 +25,7 @@ SLAVE_CONF=/etc/redis/slave.conf
 
 # Launch master when `MASTER` environment variable is set
 function launchmaster() {
+  echo Using config file $MASTER_CONF
   if [[ ! -e /redis-master-data ]]; then
     echo "Redis master data doesn't exist, data won't be persistent!"
     mkdir /redis-master-data
@@ -34,8 +35,10 @@ function launchmaster() {
 
 # Launch sentinel when `SENTINEL` environment variable is set
 function launchsentinel() {
+  echo Using config file $SENTINEL_CONF
   while true; do
-    master=$(redis-cli -h ${REDIS_SENTINEL_SERVICE_HOST} -p ${REDIS_SENTINEL_SERVICE_PORT} --csv SENTINEL get-master-addr-by-name mymaster | tr ',' ' ' | cut -d' ' -f1)
+#    master=$(redis-cli -h ${REDIS_SENTINEL_SERVICE_HOST} -p ${REDIS_SENTINEL_SERVICE_PORT} --csv SENTINEL get-master-addr-by-name mymaster | tr ',' ' ' | cut -d' ' -f1)
+    master=${REDIS_MASTER_APPLIANCE_VPC_SERVICE_HOST}
     if [[ -n ${master} ]]; then
       master="${master//\"}"
     else
@@ -50,7 +53,8 @@ function launchsentinel() {
     sleep 10
   done
 
-  echo "sentinel monitor mymaster ${master} 6379 2" > ${SENTINEL_CONF}
+#  echo "sentinel monitor mymaster ${master} 6379 2" > ${SENTINEL_CONF}
+  echo "sentinel monitor mymaster ${REDIS_MASTER_APPLIANCE_VPC_SERVICE_HOST} ${REDIS_MASTER_APPLIANCE_VPC_SERVICE_PORT} 2" > ${SENTINEL_CONF}
   echo "sentinel down-after-milliseconds mymaster 60000" >> ${SENTINEL_CONF}
   echo "sentinel failover-timeout mymaster 180000" >> ${SENTINEL_CONF}
   echo "sentinel parallel-syncs mymaster 1" >> ${SENTINEL_CONF}
@@ -62,6 +66,7 @@ function launchsentinel() {
 
 # Launch slave when `SLAVE` environment variable is set
 function launchslave() {
+  echo Using config file $SLAVE_CONF
   if [[ ! -e /redis-master-data ]]; then
     echo "Redis master data doesn't exist, data won't be persistent!"
     mkdir /redis-master-data
@@ -83,8 +88,10 @@ function launchslave() {
     echo "Connecting to master failed.  Waiting..."
     sleep 10
   done
-  sed -i "s/%master-ip%/${master}/" $SLAVE_CONF
-  sed -i "s/%master-port%/6379/" $SLAVE_CONF
+#  sed -i "s/%master-ip%/${master}/" $SLAVE_CONF
+#  sed -i "s/%master-port%/6379/" $SLAVE_CONF
+  sed -i "s/%master-ip%/${REDIS_MASTER_APPLIANCE_VPC_SERVICE_HOST}/" $SLAVE_CONF
+  sed -i "s/%master-port%/${REDIS_MASTER_APPLIANCE_VPC_SERVICE_PORT}/" $SLAVE_CONF
   redis-server $SLAVE_CONF --protected-mode no
 }
 
