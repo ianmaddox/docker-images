@@ -29,5 +29,6 @@ COPY redis.sh /usr/local/bin/redis.sh
 
 CMD [ "touch /var/log/redisrunner.txt; chmod +w /var/log/redisrunner.txt; chmod +x /usr/local/bin/redis.sh" ]
 CMD [ "/usr/local/bin/redis.sh | tee /var/log/redis/runner.txt" ]
+CMD [ "echo never > /sys/kernel/mm/transparent_hugepage/enabled" ]
 
 ENTRYPOINT [ "bash", "-c" ]
