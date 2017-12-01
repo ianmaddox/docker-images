@@ -89,6 +89,7 @@ if [[ "${HOSTNAME}" == *"-server-0" ]]; then
   export MASTER="true"
   echo "Seeding Redis cluster with initial master"
   launchmaster
+  echo "Launchmaster action completed"
   exit 0
 fi
 # Check if MASTER environment variable is set
@@ -101,8 +102,10 @@ fi
 if [[ "${SENTINEL}" == "true" ]]; then
   echo "Launching Redis Sentinel"
   launchsentinel
+  echo "Launcsentinel action completed"
   exit 0
 fi
 # Launch slave if nothing is set
 echo "Launching Redis in Replica mode"
 launchslave
+echo "Launchslave action completed"
