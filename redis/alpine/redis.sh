@@ -12,7 +12,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-echo "Launching redis orchestrator"
+echo "Starting redis launcher"
+echo "Fixing THP"
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+
+echo "Selecting proper service to execute"
+
 # Define config file locations
 SENTINEL_CONF=/etc/redis/sentinel.conf
 MASTER_CONF=/etc/redis/master.conf
