@@ -55,7 +55,7 @@ function launchsentinel() {
   echo "sentinel failover-timeout mymaster 180000" >> ${SENTINEL_CONF}
   echo "sentinel parallel-syncs mymaster 1" >> ${SENTINEL_CONF}
   echo "sentinel client-reconfig-script mymaster /var/redis/reconfig.sh"
-  echo "bind 0.0.0.0"
+  echo "bind 0.0.0.0" >> ${SENTINEL_CONF}
 
   redis-sentinel ${SENTINEL_CONF} --protected-mode no
 }
