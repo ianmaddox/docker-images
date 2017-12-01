@@ -55,7 +55,7 @@ function launchsentinel() {
   echo "sentinel failover-timeout mymaster 180000" >> ${SENTINEL_CONF}
   echo "sentinel parallel-syncs mymaster 1" >> ${SENTINEL_CONF}
   echo "bind 0.0.0.0" >> ${SENTINEL_CONF}
-  echo "sentinel client-reconfig-script mymaster /var/redis/reconfig.sh" >> ${SENTINEL_CONF}
+  echo "sentinel client-reconfig-script mymaster /usr/local/bin/promote.sh" >> ${SENTINEL_CONF}
 
   redis-sentinel ${SENTINEL_CONF} --protected-mode no
 }
@@ -93,6 +93,8 @@ function launchslave() {
 if [[ "${HOSTNAME}" == *"-server-0" ]]; then
   export MASTER="true"
   echo "Seeding Redis cluster with initial master"
+  echo "Promoting myself to master"
+  /usr/local/bin/promote.sh $HOSTNAME
   launchmaster
   echo "Launchmaster action completed"
   exit 0
