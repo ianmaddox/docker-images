@@ -25,9 +25,9 @@ COPY redis-master.conf /etc/redis/master.conf
 COPY redis-slave.conf /etc/redis/slave.conf
 COPY redis-sentinel.conf /etc/redis/sentinel.conf
 COPY promote.sh /usr/local/bin/promote.sh
-COPY redis.sh /usr/local/bin/redis.sh
+COPY redis-launcher.sh /usr/local/bin/redis-launcher.sh
 
-CMD [ "touch /var/log/redisrunner.txt; chmod +w /var/log/redisrunner.txt; chmod +x /usr/local/bin/redis.sh" ]
-CMD [ "/usr/local/bin/redis.sh | tee /var/log/redis/runner.txt" ]
+CMD [ "touch /var/log/redisrunner.txt; chmod +w /var/log/redisrunner.txt; chmod +x /usr/local/bin/redis-launcher.sh" ]
+CMD [ "/usr/local/bin/redis-launcher.sh | tee /var/log/redis/runner.txt" ]
 
 ENTRYPOINT [ "bash", "-c" ]
