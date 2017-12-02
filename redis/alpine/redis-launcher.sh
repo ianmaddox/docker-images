@@ -37,7 +37,6 @@ function launchmaster() {
 function launchsentinel() {
   echo Using config file $SENTINEL_CONF
   while true; do
-#    master=$(redis-cli -h ${REDIS_SENTINEL_SERVICE_HOST} -p ${REDIS_SENTINEL_SERVICE_PORT} --csv SENTINEL get-master-addr-by-name mymaster | tr ',' ' ' | cut -d' ' -f1)
     master=${REDIS_MASTER_APPLIANCE_VPC_SERVICE_HOST}
     if [[ -n ${master} ]]; then
       master="${master//\"}"
@@ -72,40 +71,25 @@ function launchslave() {
     mkdir /redis-master-data
   fi
 
+  i=0
   while true; do
-    master=$(redis-cli -h ${REDIS_SENTINEL_SERVICE_HOST} -p ${REDIS_SENTINEL_SERVICE_PORT} --csv SENTINEL get-master-addr-by-name mymaster | tr ',' ' ' | cut -d' ' -f1)
-    if [[ -n ${master} ]]; then
-      master="${master//\"}"
-    else
-      echo "Failed to find master."
-      sleep 60
-      exit 1
-    fi
+    master=${REDIS_MASTER_APPLIANCE_VPC_SERVICE_HOST}
     redis-cli -h ${master} INFO
     if [[ "$?" == "0" ]]; then
       break
     fi
+    i=$((i+1))
+    if [[ "$i" -gt "30" ]]; then
+      echo "Exiting after too many attempts"
+      exit 1
+    fi
     echo "Connecting to master failed.  Waiting..."
-    sleep 10
+    sleep 1
   done
-#  sed -i "s/%master-ip%/${master}/" $SLAVE_CONF
-#  sed -i "s/%master-port%/6379/" $SLAVE_CONF
   sed -i "s/%master-ip%/${REDIS_MASTER_APPLIANCE_VPC_SERVICE_HOST}/" $SLAVE_CONF
   sed -i "s/%master-port%/${REDIS_MASTER_APPLIANCE_VPC_SERVICE_PORT}/" $SLAVE_CONF
   redis-server $SLAVE_CONF --protected-mode no
 }
-
-
-# Seed the cluster with a single master
-# if [[ "${HOSTNAME}" == *"-server-0" ]]; then
-#   export MASTER="true"
-#   echo "Seeding Redis cluster with initial master"
-#   echo "Promoting myself to master"
-#   /usr/local/bin/promote.sh $HOSTNAME
-#   launchmaster
-#   echo "Launchmaster action completed"
-#   exit 0
-# fi
 
 # Check if MASTER environment variable is set
 if [[ "${MASTER}" == "true" ]]; then
