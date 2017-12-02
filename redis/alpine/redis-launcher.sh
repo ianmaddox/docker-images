@@ -25,7 +25,7 @@ SLAVE_CONF=/etc/redis/slave.conf
 
 # Launch master when `MASTER` environment variable is set
 function launchmaster() {
-  echo Using config file $MASTER_CONF
+  echo "Using config file $MASTER_CONF"
   if [[ ! -e /redis-master-data ]]; then
     echo "Redis master data doesn't exist, data won't be persistent!"
     mkdir /redis-master-data
@@ -35,7 +35,7 @@ function launchmaster() {
 
 # Launch sentinel when `SENTINEL` environment variable is set
 function launchsentinel() {
-  echo Using config file $SENTINEL_CONF
+  echo "Using config file $SENTINEL_CONF"
   while true; do
     master=${REDIS_MASTER_APPLIANCE_VPC_SERVICE_HOST}
     if [[ -n ${master} ]]; then
@@ -65,7 +65,7 @@ function launchsentinel() {
 
 # Launch slave when `SLAVE` environment variable is set
 function launchslave() {
-  echo Using config file $SLAVE_CONF
+  echo "Using config file $SLAVE_CONF"
   if [[ ! -e /redis-master-data ]]; then
     echo "Redis master data doesn't exist, data won't be persistent!"
     mkdir /redis-master-data
@@ -74,7 +74,7 @@ function launchslave() {
   i=0
   while true; do
     master=${REDIS_MASTER_APPLIANCE_VPC_SERVICE_HOST}
-    redis-cli -h ${master} INFO
+    timeout -t 3 redis-cli -h ${master} INFO
     if [[ "$?" == "0" ]]; then
       break
     fi
