@@ -14,7 +14,7 @@
 # limitations under the License.
 echo "Starting redis launcher"
 echo "Fixing THP"
-echo never > /sys/kernel/mm/transparent_hugepage/enabled
+echo "never" > /sys/kernel/mm/transparent_hugepage/enabled
 
 echo "Selecting proper service to execute"
 
@@ -25,6 +25,7 @@ SLAVE_CONF=/etc/redis/slave.conf
 
 # Launch master when `MASTER` environment variable is set
 function launchmaster() {
+  kubectl label --overwrite pod $HOSTNAME redis-role="master"
   echo "Using config file $MASTER_CONF"
   if [[ ! -e /redis-master-data ]]; then
     echo "Redis master data doesn't exist, data won't be persistent!"
@@ -35,6 +36,7 @@ function launchmaster() {
 
 # Launch sentinel when `SENTINEL` environment variable is set
 function launchsentinel() {
+  kubectl label --overwrite pod $HOSTNAME redis-role="sentinel"
   echo "Using config file $SENTINEL_CONF"
   while true; do
     master=${REDIS_MASTER_APPLIANCE_VPC_SERVICE_HOST}
@@ -65,6 +67,7 @@ function launchsentinel() {
 
 # Launch slave when `SLAVE` environment variable is set
 function launchslave() {
+  kubectl label --overwrite pod $HOSTNAME redis-role="slave"
   echo "Using config file $SLAVE_CONF"
   if [[ ! -e /redis-master-data ]]; then
     echo "Redis master data doesn't exist, data won't be persistent!"
