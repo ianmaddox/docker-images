@@ -60,7 +60,6 @@ function launchsentinel() {
   echo "sentinel failover-timeout mymaster 2000" >> ${SENTINEL_CONF}
   echo "sentinel parallel-syncs mymaster 1" >> ${SENTINEL_CONF}
   echo "bind 0.0.0.0" >> ${SENTINEL_CONF}
-  echo "logfile \"/var/log/redis/redis.log\"" >> ${SENTINEL_CONF}
   echo "sentinel client-reconfig-script mymaster /usr/local/bin/promote.sh" >> ${SENTINEL_CONF}
 
   redis-sentinel ${SENTINEL_CONF} --protected-mode no
