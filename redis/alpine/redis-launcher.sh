@@ -94,12 +94,12 @@ function launchslave() {
   redis-server $SLAVE_CONF --protected-mode no
 }
 
-# Check if MASTER environment variable is set
-# if [[ "${MASTER}" == "true" ]]; then
-#   echo "Launching Redis in Master mode"
-#   launchmaster
-#   exit 0
-# fi
+#Check if MASTER environment variable is set
+if [[ "${MASTER}" == "true" ]]; then
+  echo "Launching Redis in Master mode"
+  launchmaster
+  exit 0
+fi
 
 # Seed the cluster with a single master
 # if [[ "${HOSTNAME}" == *"-server-0" ]]; then
