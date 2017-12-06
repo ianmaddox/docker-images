@@ -120,7 +120,25 @@ if [[ "${SENTINEL}" == "true" ]]; then
   exit 0
 fi
 
-# Launch slave if nothing is set
+# Determine whether this should be a master or slave instance
+echo "Looking for pods running as master"
+MASTERS=kubectl get pod -o jsonpath='{range .items[*]}{.metadata.name} {..podIP}{"\n"}{end}' -l redis-role=master
+if [[ -n "${MASTERS}" ]]; then
+  echo "Found $MASTERS"
+  echo "Launching Redis in Replica mode"
+  launchslave
+else
+  echo "None found. Electing first master..."
+  SLAVE1=`kubectl get pod -o jsonpath='{range .items[*]}{.metadata.creationTimestamp}{..podIP} {.metadata.name}{"\n"}{end}' -l redis-role=slave --sort-by=.metadata.name|awk '{print $2}' |head -n1`
+  if [[ $SLAVE1 == $HOSTNAME ]]; then
+    echo "Taking master role"
+    launchmaster
+  else
+    echo "Electing $SLAVE1 master"
+    launchslave
+  fi
+fi
+
 echo "Launching Redis in Replica mode"
 launchslave
 echo "Launchslave action completed"
