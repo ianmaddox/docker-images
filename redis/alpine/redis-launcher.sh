@@ -102,15 +102,15 @@ function launchslave() {
 # fi
 
 # Seed the cluster with a single master
-if [[ "${HOSTNAME}" == *"-server-0" ]]; then
-  export MASTER="true"
-  echo "Seeding Redis cluster with initial master"
-  echo "Promoting myself to master"
-  /usr/local/bin/promote.sh $HOSTNAME
-  launchmaster
-  echo "Launchmaster action completed"
-  exit 0
-fi
+# if [[ "${HOSTNAME}" == *"-server-0" ]]; then
+#   export MASTER="true"
+#   echo "Seeding Redis cluster with initial master"
+#   echo "Promoting myself to master"
+#   /usr/local/bin/promote.sh $HOSTNAME
+#   launchmaster
+#   echo "Launchmaster action completed"
+#   exit 0
+# fi
 
 # Check if SENTINEL environment variable is set
 if [[ "${SENTINEL}" == "true" ]]; then
@@ -119,6 +119,7 @@ if [[ "${SENTINEL}" == "true" ]]; then
   echo "Launcsentinel action completed"
   exit 0
 fi
+
 # Launch slave if nothing is set
 echo "Launching Redis in Replica mode"
 launchslave
