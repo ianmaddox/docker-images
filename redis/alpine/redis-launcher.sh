@@ -129,7 +129,7 @@ if [[ -n "${MASTERS}" ]]; then
   launchslave
 else
   echo "None found. Electing first master..."
-  SLAVE1=`kubectl get pod -o jsonpath='{range .items[*]}{.metadata.creationTimestamp}{..podIP} {.metadata.name}{"\n"}{end}' -l redis-role=slave --sort-by=.metadata.name|awk '{print $2}' |head -n1`
+  SLAVE1=`kubectl get pod -o jsonpath='{range .items[*]}{.metadata.creationTimestamp}{..podIP} {.metadata.name}{"\n"}{end}' -l redis-node=true --sort-by=.metadata.name|awk '{print $2}'|head -n1`
   if [[ $SLAVE1 == $HOSTNAME ]]; then
     echo "Taking master role"
     launchmaster
