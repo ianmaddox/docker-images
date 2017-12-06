@@ -123,8 +123,8 @@ fi
 # Determine whether this should be a master or slave instance
 echo "Looking for pods running as master"
 MASTERS=kubectl get pod -o jsonpath='{range .items[*]}{.metadata.name} {..podIP}{"\n"}{end}' -l redis-role=master
-if [[ -n "${MASTERS}" ]]; then
-  echo "Found $MASTERS"
+echo "Found $MASTERS"
+if [[ -n "$MASTERS" ]]; then
   echo "Launching Redis in Replica mode"
   launchslave
 else
