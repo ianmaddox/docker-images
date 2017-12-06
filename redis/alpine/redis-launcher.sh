@@ -46,7 +46,7 @@ function launchsentinel() {
       master=$(hostname -i)
     fi
 
-    redis-cli -h ${master} INFO
+    timeout -t 3 redis-cli -h ${master} INFO
     if [[ "$?" == "0" ]]; then
       break
     fi
