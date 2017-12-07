@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 echo "Starting redis launcher"
-echo "Setting labels"
-update-labels.sh &
+echo "Launching label daemon"
+label-updater.sh &
 
 echo "Selecting proper service to execute"
 # Define config file locations
@@ -24,7 +24,6 @@ SLAVE_CONF=/etc/redis/slave.conf
 
 # Launch master when `MASTER` environment variable is set
 function launchmaster() {
-  kubectl label --overwrite pod $HOSTNAME redis-role="master"
   echo "Using config file $MASTER_CONF"
   if [[ ! -e /redis-master-data ]]; then
     echo "Redis master data doesn't exist, data won't be persistent!"
@@ -35,7 +34,6 @@ function launchmaster() {
 
 # Launch sentinel when `SENTINEL` environment variable is set
 function launchsentinel() {
-  kubectl label --overwrite pod $HOSTNAME redis-role="sentinel"
   echo "Using config file $SENTINEL_CONF"
   while true; do
     master=${REDIS_MASTER_APPLIANCE_VPC_SERVICE_HOST}
@@ -59,14 +57,13 @@ function launchsentinel() {
   echo "sentinel failover-timeout mymaster 90000" >> ${SENTINEL_CONF}
   echo "sentinel parallel-syncs mymaster 10" >> ${SENTINEL_CONF}
   echo "bind 0.0.0.0" >> ${SENTINEL_CONF}
-  echo "sentinel client-reconfig-script mymaster /usr/local/bin/promote.sh" >> ${SENTINEL_CONF}
+#  echo "sentinel client-reconfig-script mymaster /usr/local/bin/promote.sh" >> ${SENTINEL_CONF}
 
   redis-sentinel ${SENTINEL_CONF} --protected-mode no
 }
 
 # Launch slave when `SLAVE` environment variable is set
 function launchslave() {
-  kubectl label --overwrite pod $HOSTNAME redis-role="slave"
   echo "Using config file $SLAVE_CONF"
   if [[ ! -e /redis-master-data ]]; then
     echo "Redis master data doesn't exist, data won't be persistent!"
