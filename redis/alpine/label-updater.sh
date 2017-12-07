@@ -3,7 +3,7 @@ PODIP=`hostname -i`
 echo podIP $PODIP
 kubectl label --overwrite pod $HOSTNAME podIP="$PODIP"
 
-if [ "$SENTINEL" == "true" ]
+if [ "$SENTINEL" ]; then
     exit
 fi
 
