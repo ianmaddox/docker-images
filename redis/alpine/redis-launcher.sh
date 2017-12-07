@@ -24,6 +24,8 @@ SLAVE_CONF=/etc/redis/slave.conf
 
 # Launch master when `MASTER` environment variable is set
 function launchmaster() {
+  # If we know we're a master, update the labels right away
+  kubectl label --overwrite pod $HOSTNAME redis-role="master"
   echo "Using config file $MASTER_CONF"
   if [[ ! -e /redis-master-data ]]; then
     echo "Redis master data doesn't exist, data won't be persistent!"
