@@ -13,11 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 echo "Starting redis launcher"
-echo "Fixing THP"
-echo "never" > /sys/kernel/mm/transparent_hugepage/enabled
+echo "Setting labels"
+update-labels.sh &
 
 echo "Selecting proper service to execute"
-
 # Define config file locations
 SENTINEL_CONF=/etc/redis/sentinel.conf
 MASTER_CONF=/etc/redis/master.conf
