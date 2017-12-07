@@ -36,6 +36,8 @@ function launchmaster() {
 
 # Launch sentinel when `SENTINEL` environment variable is set
 function launchsentinel() {
+  # If we know we're a sentinel, update the labels right away
+  kubectl label --overwrite pod $HOSTNAME redis-role="sentinel"  
   echo "Using config file $SENTINEL_CONF"
   while true; do
     master=${REDIS_MASTER_APPLIANCE_VPC_SERVICE_HOST}
