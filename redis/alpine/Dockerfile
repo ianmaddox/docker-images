@@ -24,7 +24,6 @@ RUN rm -rf /var/cache/apk/*
 COPY redis-master.conf /etc/redis/master.conf
 COPY redis-slave.conf /etc/redis/slave.conf
 COPY redis-sentinel.conf /etc/redis/sentinel.conf
-COPY promote.sh /usr/local/bin/promote.sh
 COPY label-updater.sh /usr/local/bin/label-updater.sh
 COPY redis-launcher.sh /usr/local/bin/redis-launcher.sh
 
