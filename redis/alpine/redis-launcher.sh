@@ -57,8 +57,8 @@ function launchsentinel() {
 
 #  echo "sentinel monitor mymaster ${master} 6379 2" > ${SENTINEL_CONF}
   echo "sentinel monitor mymaster ${REDIS_MASTER_APPLIANCE_VPC_SERVICE_HOST} ${REDIS_MASTER_APPLIANCE_VPC_SERVICE_PORT} 2" > ${SENTINEL_CONF}
-  echo "sentinel down-after-milliseconds mymaster 15000" >> ${SENTINEL_CONF}
-  echo "sentinel failover-timeout mymaster 90000" >> ${SENTINEL_CONF}
+  echo "sentinel down-after-milliseconds mymaster 30000" >> ${SENTINEL_CONF}
+  echo "sentinel failover-timeout mymaster 120000" >> ${SENTINEL_CONF}
   echo "sentinel parallel-syncs mymaster 10" >> ${SENTINEL_CONF}
   echo "bind 0.0.0.0" >> ${SENTINEL_CONF}
 #  echo "sentinel client-reconfig-script mymaster /usr/local/bin/promote.sh" >> ${SENTINEL_CONF}
