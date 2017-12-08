@@ -45,10 +45,8 @@ function launchsentinel() {
     master=$(kubectl get pods -l redis-role=master -o=custom-columns=:..labels.podIP|xargs)
     echo "Current master is $master"
 
-    if [[ -n ${master} ]]; then
-      master="${master//\"}"
-    else
-      master=$(hostname -i)
+    if [[ -z ${master} ]]; then
+      continue
     fi
 
     timeout -t 3 redis-cli -h ${master} INFO
@@ -59,8 +57,7 @@ function launchsentinel() {
     sleep 10
   done
 
-#  echo "sentinel monitor mymaster ${master} 6379 2" > ${SENTINEL_CONF}
-  echo "sentinel monitor mymaster ${REDIS_MASTER_APPLIANCE_VPC_SERVICE_HOST} ${REDIS_MASTER_APPLIANCE_VPC_SERVICE_PORT} 2" > ${SENTINEL_CONF}
+  echo "sentinel monitor mymaster ${master} ${REDIS_MASTER_APPLIANCE_VPC_SERVICE_PORT} 2" > ${SENTINEL_CONF}
   echo "sentinel down-after-milliseconds mymaster 30000" >> ${SENTINEL_CONF}
   echo "sentinel failover-timeout mymaster 120000" >> ${SENTINEL_CONF}
   echo "sentinel parallel-syncs mymaster 10" >> ${SENTINEL_CONF}
