@@ -41,7 +41,8 @@ function launchsentinel() {
   echo "Using config file $SENTINEL_CONF"
   while true; do
     # The sentinels must wait for a load-balanced master to appear then ask it for its actual IP.
-    master=$(redis-cli -h ${REDIS_SENTINEL_SERVICE_HOST} -p ${REDIS_SENTINEL_SERVICE_PORT} --csv SENTINEL get-master-addr-by-name mymaster | tr ',' ' ' | cut -d' ' -f1)
+#    master=$(redis-cli -h ${REDIS_SENTINEL_SERVICE_HOST} -p ${REDIS_SENTINEL_SERVICE_PORT} --csv SENTINEL get-master-addr-by-name mymaster | tr ',' ' ' | cut -d' ' -f1)
+    master=$(kubectl get pods -l redis-role=master -o=custom-columns=:..labels.podIP|xargs)
 
     if [[ -n ${master} ]]; then
       master="${master//\"}"
