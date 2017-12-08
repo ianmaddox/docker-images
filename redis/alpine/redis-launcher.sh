@@ -40,7 +40,9 @@ function launchsentinel() {
   kubectl label --overwrite pod $HOSTNAME redis-role="sentinel"  
   echo "Using config file $SENTINEL_CONF"
   while true; do
-    master=${REDIS_MASTER_APPLIANCE_VPC_SERVICE_HOST}
+    # The sentinels must wait for a load-balanced master to appear then ask it for its actual IP.
+    master=$(redis-cli -h ${REDIS_SENTINEL_SERVICE_HOST} -p ${REDIS_SENTINEL_SERVICE_PORT} --csv SENTINEL get-master-addr-by-name mymaster | tr ',' ' ' | cut -d' ' -f1)
+
     if [[ -n ${master} ]]; then
       master="${master//\"}"
     else
