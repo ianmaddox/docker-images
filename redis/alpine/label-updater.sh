@@ -7,8 +7,6 @@ if [ "$SENTINEL" ]; then
     exit
 fi
 
-kubectl label --overwrite pod $HOSTNAME redis-role="pending"
-
 RUNID=""
 while true; do
   RUNID=`redis-cli info server |grep run_id|awk -F: '{print $2}'|head -c6`

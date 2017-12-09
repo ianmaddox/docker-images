@@ -84,6 +84,7 @@ function launchsentinel() {
 
 # Launch slave when `SLAVE` environment variable is set
 function launchslave() {
+  kubectl label --overwrite pod $HOSTNAME redis-role="slave"
   echo "Using config file $SLAVE_CONF"
   if [[ ! -e /redis-master-data ]]; then
     echo "Redis master data doesn't exist, data won't be persistent!"
