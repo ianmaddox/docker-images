@@ -72,7 +72,10 @@ function launchsentinel() {
     sleep 10
   done
 
-  echo "sentinel monitor mymaster ${master} ${REDIS_MASTER_APPLIANCE_VPC_SERVICE_PORT} 2" > ${SENTINEL_CONF}
+  BASH_PREFIX=`echo $REDIS_CHART_PREFIX|awk '{print toupper($0)}'|sed 's/-/_/'`
+  PORTVAR=${BASH_PREFIX}MASTER_APPLIANCE_VPC_SERVICE_PORT
+
+  echo "sentinel monitor mymaster ${master} ${!PORTVAR} 2" > ${SENTINEL_CONF}
   echo "sentinel down-after-milliseconds mymaster 15000" >> ${SENTINEL_CONF}
   echo "sentinel failover-timeout mymaster 30000" >> ${SENTINEL_CONF}
   echo "sentinel parallel-syncs mymaster 10" >> ${SENTINEL_CONF}
