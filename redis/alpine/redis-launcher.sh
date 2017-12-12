@@ -55,6 +55,12 @@ function launchsentinel() {
   # If we know we're a sentinel, update the labels right away
   kubectl label --overwrite pod $HOSTNAME redis-role="sentinel"  
   echo "Using config file $SENTINEL_CONF"
+
+  BASH_PREFIX=`echo $REDIS_CHART_PREFIX|awk '{print toupper($0)}'|sed 's/-/_/'`
+  PORTVAR=${BASH_PREFIX}MASTER_APPLIANCE_VPC_SERVICE_PORT
+  PORT="${!PORTVAR}"
+  echo Looking for master on port $PORT
+
   while true; do
     # The sentinels must wait for a load-balanced master to appear then ask it for its actual IP.
     master=$(kubectl get pods -l redis-role=master -o=custom-columns=:..labels.podIP|xargs)
@@ -64,7 +70,7 @@ function launchsentinel() {
       continue
     fi
 
-    timeout -t 3 redis-cli -h ${master} INFO
+    timeout -t 3 redis-cli -h ${master} ${PORT} INFO
     if [[ "$?" == "0" ]]; then
       break
     fi
@@ -72,11 +78,7 @@ function launchsentinel() {
     sleep 10
   done
 
-  BASH_PREFIX=`echo $REDIS_CHART_PREFIX|awk '{print toupper($0)}'|sed 's/-/_/'`
-  PORTVAR=${BASH_PREFIX}MASTER_APPLIANCE_VPC_SERVICE_PORT
-echo Preparing to monitor $master $PORTVAR
-
-  echo "sentinel monitor mymaster ${master} ${!PORTVAR} 2" > ${SENTINEL_CONF}
+  echo "sentinel monitor mymaster ${master} ${PORT} 2" > ${SENTINEL_CONF}
   echo "sentinel down-after-milliseconds mymaster 15000" >> ${SENTINEL_CONF}
   echo "sentinel failover-timeout mymaster 30000" >> ${SENTINEL_CONF}
   echo "sentinel parallel-syncs mymaster 10" >> ${SENTINEL_CONF}
