@@ -74,6 +74,7 @@ function launchsentinel() {
 
   BASH_PREFIX=`echo $REDIS_CHART_PREFIX|awk '{print toupper($0)}'|sed 's/-/_/'`
   PORTVAR=${BASH_PREFIX}MASTER_APPLIANCE_VPC_SERVICE_PORT
+echo Preparing to monitor $master $PORTVAR
 
   echo "sentinel monitor mymaster ${master} ${!PORTVAR} 2" > ${SENTINEL_CONF}
   echo "sentinel down-after-milliseconds mymaster 15000" >> ${SENTINEL_CONF}
