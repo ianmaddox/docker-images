@@ -38,6 +38,15 @@ SENTINEL_CONF=/etc/redis/sentinel.conf
 MASTER_CONF=/etc/redis/master.conf
 SLAVE_CONF=/etc/redis/slave.conf
 
+
+# Adapt to dynamically named env vars
+BASH_PREFIX=`echo $REDIS_CHART_PREFIX|awk '{print toupper($0)}'|sed 's/-/_/'`
+PORTVAR=${BASH_PREFIX}MASTER_APPLIANCE_VPC_SERVICE_PORT
+MASTER_LB_PORT="${!PORTVAR}"
+HOSTVAR=${BASH_PREFIX}MASTER_APPLIANCE_VPC_SERVICE_HOST
+MASTER_LB_HOST="${!HOSTVAR}"
+echo "Expect master LB at $MASTER_LB_HOST:$MASTER_LB_PORT"
+
 # Launch master when `MASTER` environment variable is set
 function launchmaster() {
   # If we know we're a master, update the labels right away
@@ -56,11 +65,6 @@ function launchsentinel() {
   kubectl label --overwrite pod $HOSTNAME redis-role="sentinel"  
   echo "Using config file $SENTINEL_CONF"
 
-  BASH_PREFIX=`echo $REDIS_CHART_PREFIX|awk '{print toupper($0)}'|sed 's/-/_/'`
-  PORTVAR=${BASH_PREFIX}MASTER_APPLIANCE_VPC_SERVICE_PORT
-  PORT="${!PORTVAR}"
-  echo Looking for master on port $PORT
-
   while true; do
     # The sentinels must wait for a load-balanced master to appear then ask it for its actual IP.
     master=$(kubectl get pods -l redis-role=master -o=custom-columns=:..labels.podIP|xargs)
@@ -70,7 +74,7 @@ function launchsentinel() {
       continue
     fi
 
-    timeout -t 3 redis-cli -h ${master} ${PORT} INFO
+    timeout -t 3 redis-cli -h ${master} ${MASTER_LB_PORT} INFO
     if [[ "$?" == "0" ]]; then
       break
     fi
@@ -78,7 +82,7 @@ function launchsentinel() {
     sleep 10
   done
 
-  echo "sentinel monitor mymaster ${master} ${PORT} 2" > ${SENTINEL_CONF}
+  echo "sentinel monitor mymaster ${master} ${MASTER_LB_PORT} 2" > ${SENTINEL_CONF}
   echo "sentinel down-after-milliseconds mymaster 15000" >> ${SENTINEL_CONF}
   echo "sentinel failover-timeout mymaster 30000" >> ${SENTINEL_CONF}
   echo "sentinel parallel-syncs mymaster 10" >> ${SENTINEL_CONF}
@@ -99,7 +103,7 @@ function launchslave() {
 
   i=0
   while true; do
-    master=${REDIS_MASTER_APPLIANCE_VPC_SERVICE_HOST}
+    master=${MASTER_LB_HOST}
     timeout -t 3 redis-cli -h ${master} INFO
     if [[ "$?" == "0" ]]; then
       break
@@ -112,8 +116,8 @@ function launchslave() {
     echo "Connecting to master failed.  Waiting..."
     sleep 1
   done
-  sed -i "s/%master-ip%/${REDIS_MASTER_APPLIANCE_VPC_SERVICE_HOST}/" $SLAVE_CONF
-  sed -i "s/%master-port%/${REDIS_MASTER_APPLIANCE_VPC_SERVICE_PORT}/" $SLAVE_CONF
+  sed -i "s/%master-ip%/${MASTER_LB_HOST}/" $SLAVE_CONF
+  sed -i "s/%master-port%/${MASTER_LB_PORT}/" $SLAVE_CONF
   redis-server $SLAVE_CONF --protected-mode no
 }
 
