@@ -40,9 +40,9 @@ SLAVE_CONF=/etc/redis/slave.conf
 
 
 # Adapt to dynamically named env vars
-BASH_PREFIX=`echo $REDIS_CHART_PREFIX|awk '{print toupper($0)}'|sed 's/-/_/g'`
-PORTVAR="${BASH_PREFIX}MASTER_APPLIANCE_VPC_SERVICE_PORT"
-HOSTVAR="${BASH_PREFIX}MASTER_APPLIANCE_VPC_SERVICE_HOST"
+ENV_VAR_PREFIX=`echo $REDIS_CHART_PREFIX|awk '{print toupper($0)}'|sed 's/-/_/g'`
+PORTVAR="${ENV_VAR_PREFIX}MASTER_APPLIANCE_VPC_SERVICE_PORT"
+HOSTVAR="${ENV_VAR_PREFIX}MASTER_APPLIANCE_VPC_SERVICE_HOST"
 echo debug vars $PORTVAR $HOSTVAR
 MASTER_LB_PORT="${!PORTVAR}"
 MASTER_LB_HOST="${!HOSTVAR}"
@@ -142,7 +142,7 @@ echo "Looking for pods running as master"
 MASTERS=`kubectl get pod -o jsonpath='{range .items[*]}{.metadata.name} {..podIP}{"\n"}{end}' -l redis-role=master`
 if [[ "$MASTERS" == "" ]]; then
   echo "No masters found: \"$MASTERS\" Electing first master..."
-  SLAVE1=`kubectl get pod -o jsonpath='{range .items[*]}{.metadata.creationTimestamp} {.metadata.name}{"\n"}{end}' -l redis-node=true |sort|awk '{print $2}'|head -n1`
+  SLAVE1=`kubectl get pod -o jsonpath='{range .items[*]}{.metadata.creationTimestamp} {.metadata.name}{"\n"}{end}' -l redis-node=true |grep $REDIS_CHART_PREFIX|sort|awk '{print $2}'|head -n1`
   if [[ "$SLAVE1" == "$HOSTNAME" ]]; then
     echo "Taking master role"
     launchmaster
