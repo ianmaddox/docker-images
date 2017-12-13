@@ -65,7 +65,7 @@ function launchsentinel() {
 
   while true; do
     # The sentinels must wait for a load-balanced master to appear then ask it for its actual IP.
-    master=$(kubectl get pods -l redis-role=master -o=custom-columns=:..labels.podIP|xargs)
+    master=$(kubectl get pods -l redis-role=master -o=custom-columns=:..labels.podIP|grep $REDIS_CHART_PREFIX|xargs)
     echo "Current master is $master"
 
     if [[ -z ${master} ]]; then

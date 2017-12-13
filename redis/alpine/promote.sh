@@ -8,5 +8,5 @@ echo "PROMOTING $MASTERPOD ($MASTERIP) TO MASTER"
 kubectl label --overwrite pod $MASTERPOD redis-role="master"
 
 # Demote anyone else who jumped to master
-kubectl get pod -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' -l redis-role=master --sort-by=.metadata.name|grep -v $MASTERPOD|xargs -n1 -I% kubectl label --overwrite pod % redis-role="slave"
+kubectl get pod -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' -l redis-role=master --sort-by=.metadata.name|grep $REDIS_CHART_PREFIX|grep -v $MASTERPOD|xargs -n1 -I% kubectl label --overwrite pod % redis-role="slave"
 echo "OTHER MASTERS $MASTERS"
