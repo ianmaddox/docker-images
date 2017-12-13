@@ -65,14 +65,14 @@ function launchsentinel() {
 
   while true; do
     # The sentinels must wait for a load-balanced master to appear then ask it for its actual IP.
-    master=$(kubectl get pods -l redis-role=master -o=custom-columns=:..labels.podIP|grep $REDIS_CHART_PREFIX|xargs)
-    echo "Current master is $master"
+    MASTER_IP=$(kubectl get pod -o jsonpath='{range .items[*]}{.metadata.name} {..podIP}{"\n"}{end}' -l redis-role=master|grep $REDIS_CHART_PREFIX|awk '{print $2}'|xargs)
+    echo "Current master is $MASTER_IP"
 
-    if [[ -z ${master} ]]; then
+    if [[ -z ${MASTER_IP} ]]; then
       continue
     fi
 
-    timeout -t 3 redis-cli -h ${master} -p ${MASTER_LB_PORT} INFO
+    timeout -t 3 redis-cli -h ${MASTER_IP} -p ${MASTER_LB_PORT} INFO
     if [[ "$?" == "0" ]]; then
       break
     fi
@@ -80,7 +80,7 @@ function launchsentinel() {
     sleep 10
   done
 
-  echo "sentinel monitor mymaster ${master} ${MASTER_LB_PORT} 2" > ${SENTINEL_CONF}
+  echo "sentinel monitor mymaster ${MASTER_IP} ${MASTER_LB_PORT} 2" > ${SENTINEL_CONF}
   echo "sentinel down-after-milliseconds mymaster 15000" >> ${SENTINEL_CONF}
   echo "sentinel failover-timeout mymaster 30000" >> ${SENTINEL_CONF}
   echo "sentinel parallel-syncs mymaster 10" >> ${SENTINEL_CONF}
