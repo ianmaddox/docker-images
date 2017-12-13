@@ -40,7 +40,7 @@ SLAVE_CONF=/etc/redis/slave.conf
 
 
 # Adapt to dynamically named env vars
-BASH_PREFIX=`echo $REDIS_CHART_PREFIX|awk '{print toupper($0)}'|sed 's/-/_/'`
+BASH_PREFIX=`echo $REDIS_CHART_PREFIX|awk '{print toupper($0)}'|sed 's/-/_/g'`
 PORTVAR="${BASH_PREFIX}MASTER_APPLIANCE_VPC_SERVICE_PORT"
 HOSTVAR="${BASH_PREFIX}MASTER_APPLIANCE_VPC_SERVICE_HOST"
 echo debug vars $PORTVAR $HOSTVAR
