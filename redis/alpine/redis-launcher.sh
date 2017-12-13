@@ -38,15 +38,12 @@ SENTINEL_CONF=/etc/redis/sentinel.conf
 MASTER_CONF=/etc/redis/master.conf
 SLAVE_CONF=/etc/redis/slave.conf
 
-
 # Adapt to dynamically named env vars
 ENV_VAR_PREFIX=`echo $REDIS_CHART_PREFIX|awk '{print toupper($0)}'|sed 's/-/_/g'`
 PORTVAR="${ENV_VAR_PREFIX}MASTER_APPLIANCE_VPC_SERVICE_PORT"
 HOSTVAR="${ENV_VAR_PREFIX}MASTER_APPLIANCE_VPC_SERVICE_HOST"
-echo debug vars $PORTVAR $HOSTVAR
 MASTER_LB_PORT="${!PORTVAR}"
 MASTER_LB_HOST="${!HOSTVAR}"
-echo "Expect master LB at $MASTER_LB_HOST:$MASTER_LB_PORT"
 
 # Launch master when `MASTER` environment variable is set
 function launchmaster() {
@@ -75,7 +72,7 @@ function launchsentinel() {
       continue
     fi
 
-    timeout -t 3 redis-cli -h ${master} ${MASTER_LB_PORT} INFO
+    timeout -t 3 redis-cli -h ${master} -p ${MASTER_LB_PORT} INFO
     if [[ "$?" == "0" ]]; then
       break
     fi
@@ -105,7 +102,7 @@ function launchslave() {
   i=0
   while true; do
     master=${MASTER_LB_HOST}
-    timeout -t 3 redis-cli -h ${master} INFO
+    timeout -t 3 redis-cli -h ${master} -p ${MASTER_LB_PORT} INFO
     if [[ "$?" == "0" ]]; then
       break
     fi
